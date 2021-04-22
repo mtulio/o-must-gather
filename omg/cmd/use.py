@@ -56,7 +56,39 @@ def use(mg_path, cwd, session):
                     )
                     break
             else:
-                print(
-                    "[ERROR] Invalid path. Please give path to the extracted must-gather"
-                )
+                print('[ERROR] Invalid must-gather path. Please point to the extracted must-gather directory')
                 break
+        else:
+            print('[ERROR] Invalid path. Please give path to the extracted must-gather')
+            break
+
+
+def use_session(session, mg_path=None):
+    if mg_path:
+        print(f"[TODO] setup a new session {session} to path {mg_path}")
+        return
+
+    print(f"[TODO] retrieve current session {session}")
+    return
+
+
+def use(mg_path, cwd, session):
+    """
+    use (--cmd|--session s_name mg_path)
+    use will setup a working directory. When session is defined
+    a new session will be saved on Config, otherwise the default
+    will be set.
+    """
+    if mg_path is None:
+        if cwd == True:
+            return use_cwd()
+
+        if session:
+            return use_session(session)
+
+        return use_current_cfg()
+
+    if session:
+        return use_session(session, mg_path=mg_path)
+
+    return use_setup_path(mg_path)
