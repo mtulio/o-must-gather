@@ -3,6 +3,7 @@ import os
 import sys
 import yaml
 
+
 CONFIG_FILE = os.getenv("HOME") + "/.omgconfig"
 SESSION_FILE = os.getenv("PWD") + "/.omgsession"
 
