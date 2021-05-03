@@ -4,12 +4,12 @@ import os
 from omg.common.config import Config
 
 
-def use(mg_path, cwd):
+def use(mg_path, cwd, session):
     if mg_path is None:
         if cwd is True:
             # If --cwd is set we will blindly assume current working directory
             # to be the must-gather to use
-            c = Config(fail_if_no_path=False)
+            c = Config(fail_if_no_path=False, session=session)
             c.save(path=".")
             print("Using your current working directory")
         else:
@@ -19,6 +19,8 @@ def use(mg_path, cwd):
             project = Config().project
             print("Current must-gather: %s" % path)
             print("    Current Project: %s" % project)
+            if Config().session:
+                print("      Using Session: %s" % Config().session)
             try:
                 from omg.cmd.get_main import get_resources
 
@@ -30,7 +32,7 @@ def use(mg_path, cwd):
             except:
                 print("[ERROR] Unable to determine cluster API URL and Platform.")
     else:
-        c = Config(fail_if_no_path=False)
+        c = Config(fail_if_no_path=False, session=session)
         p = mg_path
         # We traverse up to 3 levels to find the must-gather
         # At each leve if it has only one dir and we check inside it
