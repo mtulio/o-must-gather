@@ -10,17 +10,17 @@ def use(mg_path, cwd, session):
             # If --cwd is set we will blindly assume current working directory
             # to be the must-gather to use
             c = Config(fail_if_no_path=False, session=session)
-            c.save(path=".")
+            c.save(path='.')
             print("Using your current working directory")
         else:
             # If no args are passed after `omg use`
             # we print the info about currently selected must-gather
             path = Config().path
             project = Config().project
-            print("Current must-gather: %s" % path)
-            print("    Current Project: %s" % project)
+            print('Current must-gather: %s' % path)
+            print('    Current Project: %s' % project)
             if Config().session:
-                print("      Using Session: %s" % Config().session)
+                print('      Using Session: %s' % Config().session)
             try:
                 from omg.cmd.get_main import get_resources
 

@@ -23,13 +23,13 @@ class Config:
         to remove a session just remove the .omgsession file.
         """
         def setup_config(path):
-            with open(path, "r") as cf:
+            with open(path, 'r') as cf:
                 c = yaml.safe_load(cf)
                 if c is not None:
-                    if "path" in c:
-                        Config.path = c["path"]
-                    if "project" in c:
-                        Config.project = c["project"]
+                    if 'path' in c:
+                        Config.path = c['path']
+                    if 'project' in c:
+                        Config.project = c['project']
 
         self.session = session
         if os.path.exists(SESSION_FILE):
@@ -75,7 +75,7 @@ class Config:
                 current_config = SESSION_FILE
             else:
                 current_config = CONFIG_FILE
-            with open(current_config, "w") as cf:
+            with open(current_config, 'w') as cf:
                 yaml.dump(c, cf, default_flow_style=False)
         except IOError:
             print("[ERROR] Could not write config file:", current_config)
