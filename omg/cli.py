@@ -13,6 +13,8 @@ from omg.cmd.project import project, projects, complete_projects
 from omg.cmd.use import use
 from omg.cmd.whoami import whoami
 from omg.completion import bash
+from omg.cmd.parser import parser_main
+
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -42,11 +44,12 @@ def cli():
     type=click.Path(exists=True, file_okay=False, resolve_path=True, allow_dash=False),
 )
 @click.option("--cwd", is_flag=True)
-def use_cmd(mg_path, cwd):
+@click.option("--session", "-s", is_flag=True, type=bool, help="Use session file config.")
+def use_cmd(mg_path, cwd, session):
     """
     Select the must-gather to use
     """
-    use(mg_path, cwd)
+    use(mg_path, cwd, session)
 
 
 @cli.command("project")
@@ -163,3 +166,13 @@ def compare_mc_cmd(mc_names, show_contents):
     Compare Machine Configs
     """
     machine_config("compare", mc_names, show_contents)
+
+
+@cli.command("parser")
+@click.argument("command", nargs=-1)
+@click.option("--show", "-s", is_flag=True, type=bool, help="Show available commands.")
+def parser_cmd(command, show):
+    """
+    Display parser commands that is available on MG and is not parte of 'oc'
+    """
+    parser_main(command=command, show=show)
