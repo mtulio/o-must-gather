@@ -60,4 +60,3 @@ def use(mg_path, cwd, session):
                 break
         else:
             print('[ERROR] Invalid path. Please give path to the extracted must-gather')
-            break
