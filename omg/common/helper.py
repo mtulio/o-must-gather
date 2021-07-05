@@ -132,3 +132,24 @@ def extract_labels(o):
             return "<error parsing labels>"
     else:
         return "<none>"
+
+# Helper to format outputs
+def fmt_sizeof(num, suffix='B'):
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return ("%3.1f %s%s" % (num, unit, suffix))
+        num /= 1024.0
+    return ("%.1f %s%s" % (num, 'Yi', suffix))
+
+
+def fmt_countof(num, suffix=''):
+    for unit in ['','K','M','G','T','P','E','Z']:
+        if abs(num) < 1000.0:
+            return ("%3.3f %s%s" % (num, unit, suffix))
+        num /= 1000.0
+    return ("%.3f %s%s" % (num, 'Yi', suffix))
+
+
+def fmt_date_from_ts(ts):
+    from datetime import datetime
+    return str(datetime.fromtimestamp(ts / 1e3).strftime("%Y-%m-%d %H:%M:%S"))

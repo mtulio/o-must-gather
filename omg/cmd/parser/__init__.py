@@ -1,13 +1,20 @@
 import os
+import json
 from tabulate import tabulate
 
 from omg.common.config import Config
-from .etcd_out import etcd_member_list
-from .etcd_out import etcd_endpoint_health
-from .etcd_out import etcd_endpoint_status
-from .etcd_out import etcd_show_all
-from .alerts_out import alerts_summary
-from .alerts_out import alerts_firing
+from .etcd_out import (
+    etcd_member_list,
+    etcd_endpoint_health,
+    etcd_endpoint_status,
+    etcd_show_all
+)
+from .alerts_out import (
+    alerts_summary, alerts_firing
+)
+from .prometheus_out import (
+    prom_status_tsdb
+)
 
 
 parser_map = {
@@ -53,6 +60,14 @@ parser_map = {
             "helper": "Parser alerts firing exported by must-gather monitoring/alerts.json",
             "file_in": "monitoring/alerts.json",
             "fn_out": alerts_firing
+        },
+    "prometheus-status-tsdb":
+        {
+            "command": "prometheus-status-tsdb",
+            "helper": "Parser alerts firing exported by must-gather monitoring/prometheus-k8s-N/status/tsdb.json",
+            "file_in": "",
+            "ignore_err": True,
+            "fn_out": prom_status_tsdb
         }
 }
 
@@ -74,6 +89,20 @@ def help():
         output_res.append(row)
 
     print(tabulate(output_res, tablefmt="plain"))
+
+
+def _load_buffer_as_json(buffer):
+    """
+    wrapper function to open a json from a given buffer.
+    Return json object and error
+    """
+    try:
+        data = json.loads(buffer)
+        return data, False
+    except json.decoder.JSONDecodeError:
+        return "JSONDecodeError", True
+    except Exception as e:
+        return e, True
 
 
 def file_reader(path):
