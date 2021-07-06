@@ -153,59 +153,37 @@ def prom_status_runtimeinfo(buffer=None):
     """
     Show Prometheus Status: Runtime Information (/api/v1/status/runtimeinfo).
     """
-    files = [
-        "prometheus/prometheus-k8s-0/status/runtimeinfo.json",
-        "prometheus/prometheus-k8s-1/status/runtimeinfo.json"
-    ]
-    err = False
-    table_fmt = "pretty"
+    report_name = "runtimeinfo"
+    filename = f"status/{report_name}.json"
 
-    repl0, err = load_json_file(files[0])
-    if err:
-        print(f"Error loading file {files[0]}")
-        return
-
-    repl1, err = load_json_file(files[1])
-    if err:
-        print(f"Error loading file {files[1]}")
-        return
-
-    print(">> runtimeinfo <<")
-    output_res = []
     output_header = [
-        "metric",
+        f"{report_name}",
         "prometheus-k8s-0",
         "prometheus-k8s-1"
     ]
-
-    metrics = [
-        "startTime",
-        "CWD",
-        "reloadConfigSuccess",
-        "lastConfigTime",
-        "corruptionCount",
-        "goroutineCount",
-        "GOMAXPROCS",
-        "GODEBUG",
-        "storageRetention"
-    ]
-    for metric in metrics:
-        output_res.append([
-            metric,
-            repl0["data"][metric],
-            repl1["data"][metric]
-        ])
-
-    print(tabulate(output_res, headers=output_header, tablefmt=table_fmt))
+    prom_replicas_reader(report_name, filename, output_header)
 
 
 def prom_status_buildinfo(buffer=None):
     """
     Show Prometheus Status: Build Information (/api/v1/status/buildinfo).
     """
+    report_name = "buildinfo"
+    filename = f"status/{report_name}.json"
+
+    output_header = [
+        f"{report_name}",
+        "prometheus-k8s-0",
+        "prometheus-k8s-1"
+    ]
+    prom_replicas_reader(report_name, filename, output_header)
+
+
+def prom_replicas_reader(name, filename, output_header):
+
     files = [
-        "prometheus/prometheus-k8s-0/status/buildinfo.json",
-        "prometheus/prometheus-k8s-1/status/buildinfo.json"
+        f"prometheus/prometheus-k8s-0/{filename}",
+        f"prometheus/prometheus-k8s-1/{filename}"
     ]
     err = False
     table_fmt = "pretty"
@@ -220,39 +198,44 @@ def prom_status_buildinfo(buffer=None):
         print(f"Error loading file {files[1]}")
         return
 
-    print(">> buildinfo <<")
+    print(f">> {name} ({filename}) <<")
     output_res = []
-    output_header = [
-        "metric",
-        "prometheus-k8s-0",
-        "prometheus-k8s-1"
-    ]
 
-    metrics = [
-        "version",
-        "revision",
-        "branch",
-        "buildUser",
-        "buildDate",
-        "goVersion"
-    ]
-
-    for metric in metrics:
+    for dk in repl0["data"].keys():
         try:
             output_res.append([
-                metric,
-                repl0["data"][metric],
-                repl1["data"][metric]
+                dk,
+                repl0["data"][dk],
+                repl1["data"][dk]
             ])
         except KeyError as e:
             print(e)
 
-    print(tabulate(output_res, headers=output_header, tablefmt=table_fmt))
+    print(tabulate(output_res,
+                   headers=output_header,
+                   tablefmt=table_fmt)
+         )
+
+
+def prom_status_flags(buffer=None):
+    """
+    Show Prometheus Status: Build Information (/api/v1/status/flags).
+    """
+    report_name = "flags"
+    filename = f"status/{report_name}.json"
+
+    output_header = [
+        f"{report_name}",
+        "prometheus-k8s-0",
+        "prometheus-k8s-1"
+    ]
+    prom_replicas_reader(report_name, filename, output_header)
 
 
 def prom_status_runtime_buildinfo(buffer=None):
     prom_status_buildinfo(buffer)
     prom_status_runtimeinfo(buffer)
+    prom_status_flags(buffer)
     return
 
 
