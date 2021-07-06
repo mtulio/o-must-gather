@@ -8,6 +8,44 @@ from omg.common.helper import (
 )
 
 
+def prom_replicas_reader(name, filename, output_header):
+
+    files = [
+        f"prometheus/prometheus-k8s-0/{filename}",
+        f"prometheus/prometheus-k8s-1/{filename}"
+    ]
+    err = False
+    table_fmt = "pretty"
+
+    repl0, err = load_json_file(files[0])
+    if err:
+        print(f"Error loading file {files[0]}")
+        return
+
+    repl1, err = load_json_file(files[1])
+    if err:
+        print(f"Error loading file {files[1]}")
+        return
+
+    print(f">> {name} ({filename}) <<")
+    output_res = []
+
+    for dk in repl0["data"].keys():
+        try:
+            output_res.append([
+                dk,
+                repl0["data"][dk],
+                repl1["data"][dk]
+            ])
+        except KeyError as e:
+            print(e)
+
+    print(tabulate(output_res,
+                   headers=output_header,
+                   tablefmt=table_fmt)
+         )
+
+
 def prom_status_tsdb(buffer=None):
     """
     Show Prometheus Status TSDB.
@@ -179,44 +217,6 @@ def prom_status_buildinfo(buffer=None):
     prom_replicas_reader(report_name, filename, output_header)
 
 
-def prom_replicas_reader(name, filename, output_header):
-
-    files = [
-        f"prometheus/prometheus-k8s-0/{filename}",
-        f"prometheus/prometheus-k8s-1/{filename}"
-    ]
-    err = False
-    table_fmt = "pretty"
-
-    repl0, err = load_json_file(files[0])
-    if err:
-        print(f"Error loading file {files[0]}")
-        return
-
-    repl1, err = load_json_file(files[1])
-    if err:
-        print(f"Error loading file {files[1]}")
-        return
-
-    print(f">> {name} ({filename}) <<")
-    output_res = []
-
-    for dk in repl0["data"].keys():
-        try:
-            output_res.append([
-                dk,
-                repl0["data"][dk],
-                repl1["data"][dk]
-            ])
-        except KeyError as e:
-            print(e)
-
-    print(tabulate(output_res,
-                   headers=output_header,
-                   tablefmt=table_fmt)
-         )
-
-
 def prom_status_flags(buffer=None):
     """
     Show Prometheus Status: Build Information (/api/v1/status/flags).
@@ -239,24 +239,24 @@ def prom_status_runtime_buildinfo(buffer=None):
     return
 
 
-def prom_show_all(buffer=None):
+def prom_status_config_diff(buffer=None):
     """
-    Show all Prometheus commands.
+    Show Prometheus Diff: Config (/api/v1/status/config).
     """
-    from . import (
-        parser_map, file_reader 
-    )
+    report_name = "config"
+    filename = f"status/{report_name}.json"
 
-    etcd_cmds = []
-    for cmd in parser_map.keys():
-        if not cmd.startswith('etcd'):
-            continue
-        if cmd.startswith('etcd-all'):
-            continue
-        etcd_cmds.append(parser_map[cmd])
+    buffer0, err0 = load_json_file(f"prometheus/prometheus-k8s-0/{filename}")
+    buffer1, err1 = load_json_file(f"prometheus/prometheus-k8s-1/{filename}")
 
-    for cmd in etcd_cmds:
-        buffer, err = file_reader(cmd['file_in'])
-        parser_map[cmd['command']]["fn_out"](buffer)
-    
-    return
+    from difflib import Differ
+
+    b0 = buffer0["data"]["yaml"].splitlines(keepends=True)
+    b1 = buffer1["data"]["yaml"].splitlines(keepends=True)
+    d = Differ()
+    line = -1
+    for l in list(d.compare(b0, b1)):
+        line += 1
+        if l.startswith(' '):
+            continue
+        print(l.replace('\n', ' '))

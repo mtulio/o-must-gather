@@ -74,8 +74,15 @@ parser_map = {
             "file_in": "",
             "ignore_err": True,
             "fn_out": prom_out.prom_status_runtime_buildinfo
+        },
+    "prometheus-status-config":
+        {
+            "command": "prometheus-status-config",
+            "helper": "Parser alerts firing exported by must-gather monitoring/prometheus-k8s-N/status/tsdb.json",
+            "file_in": "",
+            "ignore_err": True,
+            "fn_out": prom_out.prom_status_config_diff
         }
-
 }
 
 
