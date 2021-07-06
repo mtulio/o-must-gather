@@ -12,9 +12,7 @@ from .etcd_out import (
 from .alerts_out import (
     alerts_summary, alerts_firing
 )
-from .prometheus_out import (
-    prom_status_tsdb
-)
+from . import prometheus_out as prom_out
 
 
 parser_map = {
@@ -67,8 +65,17 @@ parser_map = {
             "helper": "Parser alerts firing exported by must-gather monitoring/prometheus-k8s-N/status/tsdb.json",
             "file_in": "",
             "ignore_err": True,
-            "fn_out": prom_status_tsdb
+            "fn_out": prom_out.prom_status_tsdb
+        },
+    "prometheus-runtime-build-info":
+        {
+            "command": "prometheus-runtime-build-info",
+            "helper": "Parser alerts firing exported by must-gather monitoring/prometheus-k8s-N/status/tsdb.json",
+            "file_in": "",
+            "ignore_err": True,
+            "fn_out": prom_out.prom_status_runtime_buildinfo
         }
+
 }
 
 

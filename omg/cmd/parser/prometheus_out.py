@@ -3,7 +3,8 @@ from tabulate import tabulate
 from omg.common.helper import (
     fmt_sizeof,
     fmt_countof,
-    fmt_date_from_ts
+    fmt_date_from_ts,
+    load_json_file
 )
 
 
@@ -11,11 +12,6 @@ def prom_status_tsdb(buffer=None):
     """
     Show Prometheus Status TSDB.
     """
-    from . import (
-        print_table,
-        file_reader,
-        _load_buffer_as_json
-    )
     files = [
         "prometheus/prometheus-k8s-0/status/tsdb.json",
         "prometheus/prometheus-k8s-1/status/tsdb.json"
@@ -23,24 +19,14 @@ def prom_status_tsdb(buffer=None):
     err = False
     table_fmt = "pretty"
 
-    buffer0, err = file_reader(files[0])
+    repl0, err = load_json_file(files[0])
     if err:
-        print(f"Error reading file {files[0]}")
+        print(f"Error loading file {files[0]}")
         return
 
-    repl0, err = _load_buffer_as_json(buffer0)
+    repl1, err = load_json_file(files[1])
     if err:
-        print(f"Error loading buffer0")
-        return
-
-    buffer1, err = file_reader(files[1])
-    if err:
-        print(f"Error reading file {files[1]}")
-        return
-
-    repl1, err = _load_buffer_as_json(buffer1)
-    if err:
-        print(f"Error loading buffer1")
+        print(f"Error loading file {files[1]}")
         return
 
     print(">> headStats <<")
@@ -72,7 +58,6 @@ def prom_status_tsdb(buffer=None):
         fmt_date_from_ts(repl1["data"]["headStats"]["maxTime"])
     ])
 
-    
     print(tabulate(output_res, headers=output_header, tablefmt=table_fmt))
 
     print("\n>> seriesCountByMetricName <<")
@@ -162,6 +147,113 @@ def prom_status_tsdb(buffer=None):
         ])
     
     print(tabulate(output_res, headers=output_header, tablefmt=table_fmt, colalign=("right")))
+
+
+def prom_status_runtimeinfo(buffer=None):
+    """
+    Show Prometheus Status: Runtime Information (/api/v1/status/runtimeinfo).
+    """
+    files = [
+        "prometheus/prometheus-k8s-0/status/runtimeinfo.json",
+        "prometheus/prometheus-k8s-1/status/runtimeinfo.json"
+    ]
+    err = False
+    table_fmt = "pretty"
+
+    repl0, err = load_json_file(files[0])
+    if err:
+        print(f"Error loading file {files[0]}")
+        return
+
+    repl1, err = load_json_file(files[1])
+    if err:
+        print(f"Error loading file {files[1]}")
+        return
+
+    print(">> runtimeinfo <<")
+    output_res = []
+    output_header = [
+        "metric",
+        "prometheus-k8s-0",
+        "prometheus-k8s-1"
+    ]
+
+    metrics = [
+        "startTime",
+        "CWD",
+        "reloadConfigSuccess",
+        "lastConfigTime",
+        "corruptionCount",
+        "goroutineCount",
+        "GOMAXPROCS",
+        "GODEBUG",
+        "storageRetention"
+    ]
+    for metric in metrics:
+        output_res.append([
+            metric,
+            repl0["data"][metric],
+            repl1["data"][metric]
+        ])
+
+    print(tabulate(output_res, headers=output_header, tablefmt=table_fmt))
+
+
+def prom_status_buildinfo(buffer=None):
+    """
+    Show Prometheus Status: Build Information (/api/v1/status/buildinfo).
+    """
+    files = [
+        "prometheus/prometheus-k8s-0/status/buildinfo.json",
+        "prometheus/prometheus-k8s-1/status/buildinfo.json"
+    ]
+    err = False
+    table_fmt = "pretty"
+
+    repl0, err = load_json_file(files[0])
+    if err:
+        print(f"Error loading file {files[0]}")
+        return
+
+    repl1, err = load_json_file(files[1])
+    if err:
+        print(f"Error loading file {files[1]}")
+        return
+
+    print(">> buildinfo <<")
+    output_res = []
+    output_header = [
+        "metric",
+        "prometheus-k8s-0",
+        "prometheus-k8s-1"
+    ]
+
+    metrics = [
+        "version",
+        "revision",
+        "branch",
+        "buildUser",
+        "buildDate",
+        "goVersion"
+    ]
+
+    for metric in metrics:
+        try:
+            output_res.append([
+                metric,
+                repl0["data"][metric],
+                repl1["data"][metric]
+            ])
+        except KeyError as e:
+            print(e)
+
+    print(tabulate(output_res, headers=output_header, tablefmt=table_fmt))
+
+
+def prom_status_runtime_buildinfo(buffer=None):
+    prom_status_buildinfo(buffer)
+    prom_status_runtimeinfo(buffer)
+    return
 
 
 def prom_show_all(buffer=None):
