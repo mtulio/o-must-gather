@@ -62,7 +62,7 @@ parser_map = {
     "prometheus-status-tsdb":
         {
             "command": "prometheus-status-tsdb",
-            "helper": "Parser alerts firing exported by must-gather monitoring/prometheus-k8s-N/status/tsdb.json",
+            "helper": "Parser TSDB status exported by must-gather monitoring/prometheus/status/tsdb.json",
             "file_in": "",
             "ignore_err": True,
             "fn_out": prom_out.prom_status_tsdb
@@ -70,15 +70,15 @@ parser_map = {
     "prometheus-runtime-build-info":
         {
             "command": "prometheus-runtime-build-info",
-            "helper": "Parser alerts firing exported by must-gather monitoring/prometheus-k8s-N/status/tsdb.json",
+            "helper": "Parser Runtime and Build info exported by must-gather monitoring/prometheus/status/{runtime,buildinfo}.json",
             "file_in": "",
             "ignore_err": True,
             "fn_out": prom_out.prom_status_runtime_buildinfo
         },
-    "prometheus-status-config":
+    "prometheus-status-config-diff":
         {
-            "command": "prometheus-status-config",
-            "helper": "Parser alerts firing exported by must-gather monitoring/prometheus-k8s-N/status/tsdb.json",
+            "command": "prometheus-status-config-diff",
+            "helper": "Compare the configuration from both replicas exported by must-gather monitoring/prometheus/status/config.json",
             "file_in": "",
             "ignore_err": True,
             "fn_out": prom_out.prom_status_config_diff
